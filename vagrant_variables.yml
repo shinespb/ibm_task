@@ -1,0 +1,3 @@
+memory: 512
+vagrant_box: "ubuntu/trusty64"
+vms: 1

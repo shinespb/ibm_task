@@ -1,0 +1,110 @@
+---
+
+- hosts: localhost
+  connection: local
+  tasks:
+    # - name: "debug"
+    #   debug: 
+    #     msg: "{{ item }}"
+    #   with_dict: "{{ ssh_keys }}"
+
+    - name: "Ensure keys exists"
+      ec2_key:
+        name: "{{ item.key }}"
+        key_material: "{{ item.value.public_key }}"
+        state: present
+        region: "{{ aws_region }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        aws_access_key: "{{ aws_access_key }}"
+      with_dict: "{{ ssh_keys }}"
+
+    - name: "Create security group"
+      ec2_group:
+        name: trusteer_rule
+        description: "filter all ports except 80 and 22, and icmp"
+        aws_secret_key: "{{ aws_secret_key }}"
+        aws_access_key: "{{ aws_access_key }}"
+        region: "{{ aws_region }}"
+        rules_egress:
+          - proto: all
+            from_port: all
+            to_port: all
+            cidr_ip: 0.0.0.0/0
+        rules:
+          # for all
+          - proto: icmp
+            from_port: '-1'
+            to_port: '-1'
+            cidr_ip: 0.0.0.0/0
+          # for ibm
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 195.110.40.7/32
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 195.110.40.7/32
+          # for me
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 89.139.27.211/32            
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 89.139.27.211/32
+      register: sg
+
+    - name: "EC2 Create VM"
+      ec2:
+        group_id: "{{ sg.group_id }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        aws_access_key: "{{ aws_access_key }}"
+        key_name: "{{ installation_key }}"
+        instance_type: "{{ aws_instance_type }}"
+        image: "{{ aws_image_name }}"
+        wait: yes
+        count: 1
+        region: "{{ aws_region }}"
+      register: ec2
+
+    # - name: "debug"
+    #   debug: 
+    #     msg: "{{ ec2.instances }}"
+
+    - name: "Set facts about EC2"
+      set_fact:
+        machine_ip: "{{ ec2.instances[0].public_ip }}"
+
+    - name: "Add new instances to host group"
+      add_host: hostname={{ item.public_ip }} groupname=awsinstances
+      with_items: ec2.instances
+
+    - name: "Wait for SSH to come up"
+      wait_for: host={{ item.public_dns_name }} port=22 delay=60 timeout=320 state=started
+      with_items: ec2.instances
+
+
+
+- name: "Configure instances"
+  hosts: awsinstances
+  sudo: True
+  gather_facts: True
+  pre_tasks:
+    - name: "Get facts from ec2"
+      action: ec2_facts
+      # register: ec2
+    # - name: "Debug ec2fact"
+    #   debug:
+    #     msg: "{{ ansible_ec2_public_ipv4 }}"
+  roles:
+    - nagios_server
+    - nagios_client
+    - mediawiki
+    - ibm
+  post_tasks:
+    - name: "Additional information:"
+      debug:
+        msg: "IP Address to connect: {{ ansible_ec2_public_ipv4 }}. Nagios3: http://{{ ansible_ec2_public_ipv4 }}/nagios3/ Mediawiki: http://{{ ansible_ec2_public_ipv4 }}/mediawiki"
+

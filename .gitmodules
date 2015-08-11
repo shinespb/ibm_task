@@ -1,0 +1,6 @@
+[submodule "roles/nagios_client/files/nagios_plugins"]
+	path = roles/nagios_client/files/nagios_plugins
+	url = https://github.com/shinespb/nagios_plugins.git
+[submodule "scripts"]
+	path = scripts
+	url = https://github.com/shinespb/nagios_plugins.git

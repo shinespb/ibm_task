@@ -1,0 +1,45 @@
+---
+
+- name: "installing mediawiki"
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items: mediawiki_packages
+  notify: "restart apache"
+
+- name: "Copy wiki database"
+  copy:
+    src: my_wiki.sql
+    dest: /etc/mediawiki/my_wiki.sql
+
+- name: "Creating wiki database"
+  mysql_db:
+    state: present
+    name: my_wiki
+    encoding: utf8
+
+- name: "Creating wiki config"
+  template:
+    src: LocalSettings.php.j2
+    dest: /etc/mediawiki/LocalSettings.php
+
+- name: "Creating wiki database and import data"
+  mysql_db:
+    encoding: utf8
+    name: my_wiki
+    state: import
+    target: /etc/mediawiki/my_wiki.sql
+
+- name: "Enable mediawiki alias for apache2"
+  sudo: true
+  lineinfile: >
+    dest=/etc/mediawiki/apache.conf
+    line="Alias /mediawiki /var/lib/mediawiki"
+    regexp="^#Alias.*"
+  notify: restart apache
+
+- name: "Enable mediawiki config module for apache"
+  sudo: true
+  command: a2enconf mediawiki creates=/etc/apache2/conf-enabled/mediawiki.conf
+  notify: restart apache

@@ -1,0 +1,10 @@
+---
+- name: "Configure instances"
+  hosts: nagiosgroup
+  sudo: True
+  gather_facts: True
+  roles:
+  - nagios_server
+  - nagios_client
+  - mediawiki
+  - ibm

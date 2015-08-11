@@ -1,0 +1,20 @@
+# This file is managed by Ansible, all changes will be lost
+
+allowed_hosts=127.0.0.1
+
+log_facility={{ nagios_nrpe_log_facility }}
+pid_file={{ nagios_nrpe_pid_file }}
+server_port={{ nagios_nrpe_port }}
+nrpe_user={{ nagios_nrpe_user }}
+nrpe_group={{ nagios_nrpe_group }}
+dont_blame_nrpe={{ nagios_nrpe_dont_blame }}
+
+allow_bash_command_substitution=0
+debug={{ nagios_nrpe_debug }}
+
+command_timeout={{ nagios_nrpe_command_timeout }}
+connection_timeout={{ nagios_nrpe_connection_timeout }}
+allow_weak_random_seed={{ nagios_nrpe_weak_seed }}
+
+include=/etc/nagios/nrpe_local.cfg
+include_dir=/etc/nagios/nrpe.d/

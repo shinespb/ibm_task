@@ -1,0 +1,9 @@
+---
+
+mediawiki_name: "Test"
+
+mediawiki_packages:
+  - mediawiki
+  - mysql-server
+  - php5-mysql
+  - python-mysqldb

@@ -1,0 +1,75 @@
+---
+
+nagios_password: nagiosadmin
+nagios_user: nagiosadmin
+
+patterns_path: "/events_storage/phishing_constant_patterns"
+patterns_warning: 100
+patterns_critical: 50
+
+# use perl or python nagios module
+#nagios_module: perl
+nagios_module: python
+
+####################################
+# used only in EC2 installation
+####################################
+
+## AWS SETTINGS
+aws_access_key: "AWS_ACCESS_KEY"
+aws_secret_key: "AWS_KEY_HERE"
+
+aws_image_name: ami-00b11177 # ubuntu 14.04, x86_64
+aws_instance_type: t1.micro
+aws_region: eu-west-1
+#######################################
+
+
+# IPs who have access to VM
+
+whitelist: "8.8.8.8/32 8.8.4.4/32"
+
+installation_key: shinespb_makbook
+
+ssh_keys:
+  key_name:
+    public_key: 'pubkey_here'
+
+ferm: False 
+ferm_forward: False
+ferm_icmp_limit: '100/second'
+ferm_icmp_burst: '100'
+ferm_syn_limit: '200/second'
+ferm_syn_burst: '200'
+
+
+##### uncomment this lines if you make EC2 installation
+# and set ferm: True
+
+
+# ferm_input_list:
+#   #accept ssh connections from whitelist
+#   - type: 'dport_accept'
+#     dport: [ 'ssh']
+#     protocol: [ 'tcp' ]
+#     saddr: ['{{ whitelist }}']
+#     filename: 'dport_accept'
+#     weight: '100'
+#   #accept http connection from whitelist
+#   - type: 'dport_accept'
+#     dport: [ 'http']
+#     protocol: [ 'tcp' ]
+#     saddr: ['{{ whitelist }}']
+#     filename: 'dport_accept'
+#     weight: '30'
+
+
+####################################
+# end EC2 installation
+####################################
+
+
+
+nagios_nrpe_allowed_hosts: [ "127.0.0.1" ]
+nagios_nrpe_port: 5666
+nagios_check_external_commands: 1

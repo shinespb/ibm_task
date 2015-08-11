@@ -1,0 +1,5 @@
+---
+- name: "Copy and unarchive IBM custom event samples"
+  unarchive:
+    src: eventsamples.tgz
+    dest: /

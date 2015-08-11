@@ -1,0 +1,51 @@
+---
+
+- name: "Ensure nagios-client is installed"
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items: nagios_client_packages
+
+- name: "Create nagios NRPE config"
+  template:
+    src: 'nrpe.cfg.j2'
+    dest: '/etc/nagios/nrpe.cfg'
+  notify: "Restart NRPE"
+
+- name: "Custom commands config create"
+  template:
+    src: 'custom_commands.cfg.j2'
+    dest: '/etc/nagios/nrpe.d/custom_commands.cfg'
+  notify: "Restart NRPE"
+
+- name: "Ensure custom module directory created"
+  file:
+    path: /usr/local/lib/nagios/plugins
+    state: directory
+
+- name: "Installing PERL custom module"
+  copy:
+    src: nagios_plugins/check_patterns_count
+    dest: /usr/local/lib/nagios/plugins/check_patterns_count
+    mode: 0755
+  when: nagios_module is defined and nagios_module == "perl"
+
+- name: "Installing Python custom module"
+  copy:
+    src: nagios_plugins/check_patterns_count.py
+    dest: /usr/local/lib/nagios/plugins/check_patterns_count
+    mode: 0755
+  when: nagios_module is defined and nagios_module != "perl"
+
+- name: "Installing populate script"
+  copy:
+    src: nagios_plugins/populate.py
+    dest: /usr/local/sbin/populate.py
+    mode: 0755
+
+- name: "Create custom module config"
+  template:
+    src: 'patterns_check.cfg.j2'
+    dest: '/etc/nagios/nrpe.d/patterns_check.cfg'
+  notify: "Restart NRPE"
