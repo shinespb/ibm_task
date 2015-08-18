@@ -1,0 +1,56 @@
+# Update and install dependent packages.
+- name: install nagios dependent packages
+  sudo: true
+  apt: pkg={{ item }} state=present force=true update_cache=yes
+  with_items: nagios_packages
+
+# Setup apache.
+- tasks:
+  include: apache.yml
+
+# setup custom checks and modules
+- tasks:
+  include: custom.yaml
+
+- name: "Enable external commands"
+  sudo: true
+  lineinfile: >
+    dest=/etc/nagios3/nagios.cfg
+    line="check_external_commands=1"
+    regexp="^check_external_commands.*"
+  when: nagios_check_external_commands == 1
+  notify: restart nagios
+
+- name: "Check RW directory rights"
+  file:
+    state: directory
+    dest: /var/lib/nagios3/rw
+    mode: "u+srwx,g+sx"
+  when: nagios_check_external_commands == 1
+  notify: restart nagios
+
+- name: "Check nagios var directory rights"
+  file:
+    state: directory
+    dest: /var/lib/nagios3
+    mode: 0751
+  when: nagios_check_external_commands == 1
+  notify: restart nagios
+
+
+# - name: disable flap detection
+#   sudo: true
+#   lineinfile: >
+#     dest=/etc/nagios3/nagios.cfg
+#     line="enable_flap_detection=0"
+#     regexp="^enable_flap_detection.*$"
+
+# - name: overwrite contacts.cfg
+#   sudo: true
+#   template: >
+#     src=contacts.cfg.j2
+#     dest=/usr/local/nagios/etc/objects/contacts.cfg
+#     owner=nagios
+#     group=nagios
+#     mode=640
+

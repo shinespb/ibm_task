@@ -1,0 +1,8 @@
+define command {
+        command_name    check_patterns_count
+        command_line    /usr/local/lib/nagios/plugins/check_patterns_count -d '$ARG1$' -c '$ARG2$' -w '$ARG3$'
+}
+define command {
+        command_name    check_patterns_nrpe
+        command_line    /usr/lib/nagios/plugins/check_nrpe -H $HOSTADDRESS$ -c '$ARG1$' -a '$ARG2$' '$ARG3$' '$ARG4$'
+}

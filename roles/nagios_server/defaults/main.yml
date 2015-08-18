@@ -1,0 +1,17 @@
+nagios_packages:
+  - nagios3
+  - nagios-nrpe-plugin
+  - apache2
+  - libapache2-mod-php5
+  - sendmail-bin
+  - sendmail
+  - heirloom-mailx
+  - libwww-perl
+  - python-passlib
+
+
+nagios_password: nagiosadmin
+nagios_user: nagiosadmin
+nagios_admin_email: admins@somedomain.com
+nagios_admin_name: 'Nagios Admin'
+nagios_check_external_commands: 1

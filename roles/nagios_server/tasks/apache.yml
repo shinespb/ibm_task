@@ -1,0 +1,30 @@
+- name: add passwords for nagios
+  sudo: true
+  htpasswd: >
+    name="{{ nagios_user }}"
+    password="{{ nagios_password }}"
+    path=/etc/nagios3/htpasswd.users
+  notify: restart nagios
+
+- name: set permissions on new password file
+  sudo: true
+  file: >
+    path=/etc/nagios3/htpasswd.users
+    owner=nagios
+    group=nagios
+  notify: restart nagios
+
+- name: Create nagios apache config
+  sudo: true
+  template: >
+    src=nagios.conf.j2
+    dest=/etc/apache2/conf-available/nagios.conf
+    owner=root
+    group=root
+    mode=640
+  notify: restart nagios
+
+- name: "Enable nagios config module for apache"
+  sudo: true
+  command: a2enconf nagios creates=/etc/apache2/conf-enabled/nagios.conf
+  notify: restart nagios

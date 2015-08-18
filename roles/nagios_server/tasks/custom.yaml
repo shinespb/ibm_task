@@ -1,0 +1,17 @@
+- name: "Adding custom commands config"
+  template:
+    src: 'custom_commands.cfg.j2'
+    dest: '/etc/nagios3/conf.d/custom_commands.cfg'
+  notify: restart nagios
+
+- name: "Adding custom localhost config"
+  template:
+    src: 'custom_localhost.cfg.j2'
+    dest: '/etc/nagios3/conf.d/custom_localhost.cfg'
+  notify: restart nagios
+
+- name: "Adding custom services config"
+  template:
+    src: 'custom_services.cfg.j2'
+    dest: '/etc/nagios3/conf.d/custom_services.cfg'
+  notify: restart nagios

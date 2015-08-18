@@ -1,0 +1,6 @@
+define service{
+        use                             generic-service
+        host_name                       localhost
+        service_description             Patterns count
+        check_command                   check_patterns_count!{{ patterns_path }}!{{patterns_warning}}!{{patterns_critical}}
+        }
